@@ -114,7 +114,10 @@ const mutate = (string) => {
 
   // the 80% of the times mutate a random letter
   const stringArray = string.split('');
-  const randomLetter = getRandomPosition();
+  const stringMutationCandidates = [...stringArray].reduce((candidates, letter, i) => (
+    (letter.charCodeAt() === goalString.charCodeAt(i)) ? candidates : [...candidates, i]
+  ), []);
+  const randomLetter = stringMutationCandidates[math.floor(math.random() * stringMutationCandidates.length)];
 
   stringArray[randomLetter] = getRandomLetter();
   return stringArray.join('');
@@ -175,7 +178,7 @@ const main = () => {
 
   do {
     updateParents(currentGeneration);
-    currentGeneration = crossParents(parents);
+    currentGeneration = crossParents();
   } while (!shouldStop());
 
   orderResultData();
