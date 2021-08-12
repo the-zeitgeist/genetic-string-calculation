@@ -1,4 +1,4 @@
-# genetic-string-calculation
+# Genetic string generation
 
 This programm intends to reach a passed string by implementing genetic algorithms.
 
