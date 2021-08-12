@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/the-zeitgeist/genetic-string-calculation#readme",
   "dependencies": {
-    "json2csv": "^5.0.6"
+    "console-warn": "0.0.4",
+    "json2csv": "^5.0.6",
+    "yargs": "^17.1.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
