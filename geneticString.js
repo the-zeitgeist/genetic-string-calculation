@@ -6,7 +6,7 @@ require('console-warn');
 
 const fields = ['generations', 'parent1', 'parent2', 'value', 'score', 'hasMutated'];
 const math = Math;
-const goalString = stringGoal || 'Politecnico; Colombiano Jaime Isaza Cadavid';
+const goalString = stringGoal || 'Politecnico Colombiano Jaime Isaza Cadavid';
 const wordsLenght = goalString.length;
 const maxGenerations = 1000;
 

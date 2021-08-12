@@ -8,7 +8,7 @@ The program can be used by executing:
   node geneticString.js
 ```
 
-You can pass your desired string by using the `stringGoal` flag, in case you don't provide a string 'Politecnico; Colombiano Jaime Isaza Cadavid' will be used as default
+You can pass your desired string by using the `stringGoal` flag, in case you don't provide a string 'Politecnico Colombiano Jaime Isaza Cadavid' will be used as default
 
 ```javascript
   node geneticString.js --goalString 'My test string'
