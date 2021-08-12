@@ -154,6 +154,13 @@ const crossParents = () => {
 // Stop criteria, return true when goalString was reached or then max generations have been created
 const shouldStop = () => ((generations === maxGenerations) || (parents[0].value === goalString));
 
+const orderResultData = () => resultsArray.sort((value1, value2) => {
+  const generationDiff = value1.generations - value2.generations;
+  if (generationDiff !== 0) { return generationDiff; }
+
+  return value2.score - value1.score;
+})
+
 const main = () => {
   const notInPopulation = filterGoalStringWithPopulation();
 
@@ -170,6 +177,8 @@ const main = () => {
     updateParents(currentGeneration);
     currentGeneration = crossParents(parents);
   } while (!shouldStop());
+
+  orderResultData();
 
   const csv = parse(resultsArray, { fields })
   fs.writeFileSync('generationsResult.csv', csv);
