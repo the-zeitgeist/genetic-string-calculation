@@ -1,0 +1,25 @@
+{
+  "name": "genetic-string-generation",
+  "version": "1.0.0",
+  "description": "Founds a passed string by using a genetic algorithm",
+  "main": "geneticString.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-zeitgeist/genetic-string-calculation.git"
+  },
+  "author": "Zeitgeist",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/the-zeitgeist/genetic-string-calculation/issues"
+  },
+  "homepage": "https://github.com/the-zeitgeist/genetic-string-calculation#readme",
+  "dependencies": {
+    "json2csv": "^5.0.6"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0"
+  }
+}

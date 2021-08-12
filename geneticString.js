@@ -1,6 +1,7 @@
 const math = Math;
 const goalString = 'Politecnico Colombiano Jaime Isaza Cadavid';
 const wordsLenght = goalString.length;
+const maxGenerations = 1000;
 
 // population and population count
 const lettersPopulation = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghjiklmnopqrstuvwxyz,!? 0123456789'.split('');
@@ -22,11 +23,14 @@ let parents = [
   }
 ]
 
-// ...
+// returns random position index within 0 and goalString length
 const getRandomPosition = () => math.floor(math.random() * wordsLenght);
 
-// ...
+// increase generation count
 const increaseGenerationCount = () => { generations += 1; };
+
+// gets a random value from population
+const getRandomLetter = () => lettersPopulation[math.floor(math.random() * populationCount)];
 
 // Returns an array with the letters that are in goalString and
 // that are missing from lettersPopulation
@@ -36,24 +40,75 @@ const filterGoalStringWithPopulation = () => (
   ), [])
 );
 
-// gets a random value from population
-//Seleccionamos una letra al azar para realizar la mutación
-const getRandomLetter = () => lettersPopulation[math.floor(math.random() * populationCount)];
+// compares a word with goalString
+// compares distances in ASCII code for each character
+// search for similar groups whith the two words
+// the higher the score the better the word
+const getWordScore = (string) => {
+  const diffWithGoal = string.split('').reduce((distanceWithGoal, letter, index) => (
+    distanceWithGoal + math.abs(letter.charCodeAt() - goalString.charCodeAt(index))
+  ), 0);
 
-// returns the initial string generation with the same lenght as goalString
+  const similarCharsWithGoal = string.split('').reduce((score, _, index) => {
+    const areSimilar = (string.substring(index, index + 1) == goalString.substring(index, index + 1));
+    return areSimilar ? score + 200 : score;
+  }, 0);
+
+  return similarCharsWithGoal - diffWithGoal;
+};
+
+// returns the initial array generation with randomly generated words w/ same lenght as goalString
 const createInitialStringGeneration = () => {
-  increaseGenerationCount()
+  increaseGenerationCount();
   const initialGeneration = [];
 
   for (let i = 0; i < childrenPerGeneration; i += 1) {
     const randomString = goalString.split('').map(() => getRandomLetter()).join('');
     initialGeneration.push(randomString);
   }
+
   return initialGeneration;
 };
 
-// returns new generation, param must be past generation array
-const crossChildren = ([firstParent, secondParent]) => {
+// Find bests children
+// receives a generation array
+const findBestsChildren = (generation) => {
+  const sortedChildren = [...generation]
+    .map((child) => ({ value: child, score: getWordScore(child) }))
+    .sort((word1, word2) => word2.score - word1.score);
+  const [bestChild, secondBestChild] = sortedChildren;
+
+  return [bestChild, secondBestChild];
+};
+
+// Receives a generatios, look for the best two children and
+// compares the result with the current parrents, the best scores will
+// become the new parents
+const updateParents = (generation) => {
+  const [bestChild, secondBestChild] = findBestsChildren(generation);
+
+  const comparedParentsWithNewChildren = [...parents, bestChild, secondBestChild].sort((child1, child2) => child2.score - child1.score);
+
+  console.table(comparedParentsWithNewChildren)
+  parents = comparedParentsWithNewChildren.slice(0, 2);
+};
+
+// returns a mutated string with a probability of 80%
+const mutate = (string) => {
+  // the 20% of the times string is not mutated
+  if (math.random() < 0.20) { return string; }
+
+  // the 80% of the times mutate a random letter
+  const stringArray = string.split('');
+  const randomLetter = getRandomPosition();
+
+  stringArray[randomLetter] = getRandomLetter();
+  return stringArray.join('');
+};
+
+// returns new generation, params must be the current parents
+const crossParents = () => {
+  const [firstParent, secondParent] = parents
   console.log(firstParent, secondParent)
   increaseGenerationCount();
   const nextGeneration = [['crossValue1', 'crossValue2', 'child', 'childMutated']]
@@ -73,60 +128,11 @@ const crossChildren = ([firstParent, secondParent]) => {
   }
 
   return nextGeneration.slice(1).map((item) => item[3])
-  return nextGeneration;
+  // return nextGeneration;
 };
 
-// returns a mutated string with a probability of 80%
-const mutate = (string) => {
-  // the 20% of the times string is not mutated
-  if (math.random() < 0.20) { return string; }
-
-  // the 80% of the times mutate a random letter
-  const stringArray = string.split('');
-  const randomLetter = getRandomPosition();
-
-  stringArray[randomLetter] = getRandomLetter();
-  return stringArray.join('');
-};
-
-const getWordScore = (string) => {
-  const diffWithGoal = string.split('').reduce((distanceWithGoal, letter, index) => (
-    distanceWithGoal + math.abs(letter.charCodeAt() - goalString.charCodeAt(index))
-  ), 0);
-
-  const similarCharsWithGoal = string.split('').reduce((score, _, index, _stringArray) => {
-    const areSimilar = (string.substring(index, index + 1) == goalString.substring(index, index + 1));
-    return areSimilar ? score + 200 : score;
-  }, 0);
-
-  return similarCharsWithGoal - diffWithGoal;
-};
-
-// Find bests children
-// receives a generation array
-const findBestsChildren = (generation) => {
-  const sortedChildren = [...generation]
-    .map((child) => ({ value: child, score: getWordScore(child) }))
-    .sort((word1, word2) => word2.score - word1.score);
-  const [bestChild, secondBestChild] = sortedChildren;
-
-  // console.table(sortedChildren);
-
-  return [bestChild, secondBestChild];
-};
-
-const updateParents = (generation) => {
-  const [bestChild, secondBestChild] = findBestsChildren(generation);
-
-  const comparedParentsWithNewChildren = [...parents, bestChild, secondBestChild].sort((child1, child2) => child2.score - child1.score);
-
-  console.table(comparedParentsWithNewChildren)
-  parents = comparedParentsWithNewChildren.slice(0, 2);
-};
-
-const shouldStop = () => ((generations === 1000) || (parents[0].value === goalString));
-// instead of using childrenPerGeneration compare similarity
-
+// Stop criteria, return true when goalString was reached or then max generations have been created
+const shouldStop = () => ((generations === maxGenerations) || (parents[0].value === goalString));
 
 const main = () => {
   const initialStringGeneration = createInitialStringGeneration();
@@ -135,7 +141,7 @@ const main = () => {
 
   do {
     updateParents(currentGeneration);
-    currentGeneration = crossChildren(parents);
+    currentGeneration = crossParents(parents);
   } while (!shouldStop());
 
   console.log('generations: ', generations);
