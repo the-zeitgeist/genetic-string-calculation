@@ -21,6 +21,7 @@ const childrenPerGeneration = 20;
 
 //count of created generations
 let generations = 0;
+let closeMutationBreach = false;
 let parents = [
   {
     value: undefined,
@@ -33,13 +34,22 @@ let parents = [
 ]
 
 // returns random position index within 0 and goalString length
-const getRandomPosition = () => math.floor(math.random() * wordsLenght);
+const getRandomPosition = (top = wordsLenght) => math.floor(math.random() * top);
 
 // increase generation count
 const increaseGenerationCount = () => { generations += 1; };
 
 // gets a random value from population
-const getRandomLetter = () => lettersPopulation[math.floor(math.random() * populationCount)];
+const getRandomLetter = (seed) => {
+  if (!closeMutationBreach || !seed) { return lettersPopulation[getRandomPosition(populationCount)]; }
+
+  const randomMutationBearch = getRandomPosition(7);
+  const seedCharCode = seed.charCodeAt();
+  const shouldAdd = math.random() < 0.5;
+  const newCharCode = shouldAdd ? (seedCharCode + randomMutationBearch) : (seedCharCode - randomMutationBearch);
+
+  return String.fromCharCode(newCharCode);
+};
 
 // Returns an array with the letters that are in goalString and
 // that are missing from lettersPopulation
@@ -57,6 +67,8 @@ const getWordScore = (string) => {
   const diffWithGoal = string.split('').reduce((distanceWithGoal, letter, index) => (
     distanceWithGoal + math.abs(letter.charCodeAt() - goalString.charCodeAt(index))
   ), 0);
+
+  if (diffWithGoal < 30) { closeMutationBreach = true; }
 
   const similarCharsWithGoal = string.split('').reduce((score, _, index) => {
     const areSimilar = (string.substring(index, index + 1) == goalString.substring(index, index + 1));
@@ -107,6 +119,10 @@ const updateParents = (generation) => {
   parents = comparedParentsWithNewChildren.slice(0, 2);
 };
 
+const getCandidatesForMutation = (stringArray) => [...stringArray].reduce((candidates, letter, i) => (
+  (letter.charCodeAt() === goalString.charCodeAt(i)) ? candidates : [...candidates, i]
+), []);
+
 // returns a mutated string with a probability of 80%
 const mutate = (string) => {
   // the 20% of the times string is not mutated
@@ -114,12 +130,13 @@ const mutate = (string) => {
 
   // the 80% of the times mutate a random letter
   const stringArray = string.split('');
-  const stringMutationCandidates = [...stringArray].reduce((candidates, letter, i) => (
-    (letter.charCodeAt() === goalString.charCodeAt(i)) ? candidates : [...candidates, i]
-  ), []);
-  const randomLetter = stringMutationCandidates[math.floor(math.random() * stringMutationCandidates.length)];
+  const stringMutationCandidates = getCandidatesForMutation(stringArray);
 
-  stringArray[randomLetter] = getRandomLetter();
+  const randomLetter = stringMutationCandidates[getRandomPosition(stringMutationCandidates.length)];
+
+  const mutationFunction = closeMutationBreach ? () => getRandomLetter(stringArray[randomLetter]) : getRandomLetter;
+
+  stringArray[randomLetter] = mutationFunction();
   return stringArray.join('');
 };
 
