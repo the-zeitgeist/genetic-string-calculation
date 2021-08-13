@@ -45,7 +45,7 @@ const increaseGenerationCount = () => { generations += 1; };
 const getRandomLetter = (seed) => {
   if (!closeMutationBreach || !seed) { return lettersPopulation[getRandomPosition(populationCount)]; }
 
-  const randomMutationBearch = getRandomPosition(5);
+  const randomMutationBearch = getRandomPosition(5) + 1;
   const seedCharCode = seed.charCodeAt();
   const upper = math.random() < 0.5;
   const newCharCode = upper ? (seedCharCode + randomMutationBearch) : (seedCharCode - randomMutationBearch);
@@ -132,6 +132,8 @@ const mutate = (string) => {
 
   // the 80% of the times mutate a random letter
   const stringArray = string.split('');
+
+  // returns an array on indexes to mutate
   const stringMutationCandidates = getCandidatesForMutation(stringArray);
 
   const randomLetter = stringMutationCandidates[getRandomPosition(stringMutationCandidates.length)];
