@@ -21,6 +21,8 @@ const childrenPerGeneration = 20;
 
 //count of created generations
 let generations = 0;
+// this means that children are close to the real value
+// therefore mutation results start closing up too
 let closeMutationBreach = false;
 let parents = [
   {
@@ -43,10 +45,10 @@ const increaseGenerationCount = () => { generations += 1; };
 const getRandomLetter = (seed) => {
   if (!closeMutationBreach || !seed) { return lettersPopulation[getRandomPosition(populationCount)]; }
 
-  const randomMutationBearch = getRandomPosition(7);
+  const randomMutationBearch = getRandomPosition(5);
   const seedCharCode = seed.charCodeAt();
-  const shouldAdd = math.random() < 0.5;
-  const newCharCode = shouldAdd ? (seedCharCode + randomMutationBearch) : (seedCharCode - randomMutationBearch);
+  const upper = math.random() < 0.5;
+  const newCharCode = upper ? (seedCharCode + randomMutationBearch) : (seedCharCode - randomMutationBearch);
 
   return String.fromCharCode(newCharCode);
 };
